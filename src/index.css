@@ -271,11 +271,11 @@ body {
 }
 
 .hybrid-logo {
-  width: 180px;
+  width: 140px; /* Smaller for better rhythm */
   height: auto;
-  filter: drop-shadow(0 0 20px rgba(201, 168, 76, 0.5));
+  filter: drop-shadow(0 0 20px rgba(201, 168, 76, 0.4));
   mix-blend-mode: multiply;
-  background: white; /* Ensures multiply has a base to work from */
+  /* Removed background: white to reveal the underlying brain artwork */
 }
 
 .hybrid-title-box {
@@ -286,12 +286,12 @@ body {
 
 .hybrid-title {
   font-family: var(--font-playfair);
-  font-size: 2.25rem; /* Reduced by ~36% from 3.5rem */
+  font-size: 1.75rem; /* Significantly reduced to prevent cropping/clumsiness */
   font-weight: 700;
   color: var(--gold-primary);
   line-height: 1;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   text-shadow: 0 4px 12px rgba(0,0,0,0.8);
 }
 
@@ -305,12 +305,13 @@ body {
 }
 
 .hybrid-summary-box {
-  background: rgba(11, 27, 77, 0.6);
-  backdrop-filter: blur(10px);
-  padding: 1.2rem;
+  background: rgba(11, 27, 77, 0.4); /* More transparent to show artwork */
+  backdrop-filter: blur(8px);
+  padding: 1rem;
   border: 1px solid var(--gold-muted);
   border-radius: 8px;
-  max-width: 90%;
+  max-width: 85%;
+  margin: 1rem 0; /* Clear space from title */
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
