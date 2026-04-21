@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import { useSound } from '../hooks/useSound';
 import { useHighlights } from '../hooks/useHighlights';
@@ -13,9 +13,16 @@ export const Flipbook = () => {
   const bookRef = useRef<any>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [zoom, setZoom] = useState(1);
+  const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const { playFlipSound } = useSound();
   const { isHighlighting, toggleHighlighting } = useHighlights();
   const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([]);
+
+  useEffect(() => {
+    const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const onFlip = useCallback((e: any) => {
     setCurrentPage(e.data);
@@ -27,7 +34,7 @@ export const Flipbook = () => {
   };
 
   const handleZoom = (delta: number) => {
-    setZoom(prev => Math.min(Math.max(prev + delta, 1), 2));
+    setZoom(prev => Math.min(Math.max(prev + delta, 1), 2.5));
   };
 
   const drawHighlight = (e: React.MouseEvent<HTMLCanvasElement>, index: number) => {
@@ -75,26 +82,30 @@ export const Flipbook = () => {
     }
   };
 
-  const bookWidth = window.innerWidth > 1024 ? 700 : 450;
+  const isMobile = windowSize.width < 768;
+  const bookWidth = isMobile ? windowSize.width * 0.9 : 700;
   const bookHeight = bookWidth * 1.414;
 
   return (
     <div className="app-container">
-      <div className="page-indicator">
+      <div className="page-indicator" style={{ position: isMobile ? 'fixed' : 'absolute' }}>
         {currentPage === 0 ? 'BAS SIGNAL' : `PAGE ${currentPage} / ${SLIDES.length}`}
       </div>
 
       <div 
         className="flipbook-wrapper" 
-        style={{ transform: `scale(${zoom})` }}
+        style={{ 
+          transform: `scale(${zoom})`,
+          marginTop: isMobile ? '5rem' : '0'
+        }}
       >
         <HTMLFlipBook
           width={bookWidth}
           height={bookHeight}
           size="stretch"
-          minWidth={315}
+          minWidth={280}
           maxWidth={1400}
-          minHeight={444}
+          minHeight={400}
           maxHeight={2000}
           maxShadowOpacity={0.4}
           showCover={true}
@@ -104,14 +115,14 @@ export const Flipbook = () => {
           style={{}}
           startPage={0}
           drawShadow={true}
-          flippingTime={1000}
-          usePortrait={true}
+          flippingTime={800} // Faster flip for mobile snappiness
+          usePortrait={isMobile} // Always use portrait on mobile
           startZIndex={0}
           autoSize={true}
           clickEventForward={true}
           useMouseEvents={true}
           swipeDistance={30}
-          showPageCorners={true}
+          showPageCorners={false}
           disableFlipByClick={false}
           ref={bookRef}
         >
@@ -136,27 +147,20 @@ export const Flipbook = () => {
         </HTMLFlipBook>
       </div>
 
-      <div className="controls-bar">
+      <div className="controls-bar" style={{ position: 'fixed' }}>
         <button className="btn" onClick={() => bookRef.current.pageFlip().flipPrev()}>
-          <ChevronLeft size={24} />
+          <ChevronLeft size={isMobile ? 20 : 24} />
         </button>
         
         <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
 
         <div className="zoom-controls">
           <button className="btn" onClick={() => handleZoom(-0.1)} title="Zoom Out">
-            <ZoomOut size={20} />
+            <ZoomOut size={isMobile ? 18 : 20} />
           </button>
           <span className="zoom-value">{Math.round(zoom * 100)}%</span>
           <button className="btn" onClick={() => handleZoom(0.1)} title="Zoom In">
-            <ZoomIn size={20} />
-          </button>
-          <button 
-            className={`btn ${zoom > 1 ? 'active' : ''}`} 
-            onClick={toggleZoom} 
-            title="Toggle Immersive"
-          >
-            <Maximize2 size={20} />
+            <ZoomIn size={isMobile ? 18 : 20} />
           </button>
         </div>
 
@@ -167,27 +171,27 @@ export const Flipbook = () => {
           onClick={toggleHighlighting}
           title="Highlight Tool"
         >
-          <Highlighter size={24} />
+          <Highlighter size={isMobile ? 20 : 24} />
         </button>
 
-        <button className="btn" onClick={clearHighlights} title="Clear Highlights">
-          <Eraser size={24} />
-        </button>
-
-        <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
+        <div className="desktop-only" style={{ display: isMobile ? 'none' : 'contents' }}>
+          <button className="btn" onClick={clearHighlights} title="Clear Highlights">
+            <Eraser size={24} />
+          </button>
+          <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
+          <button className="btn" onClick={() => window.print()} title="Download/Print">
+            <Download size={24} />
+          </button>
+        </div>
 
         <button className="btn" onClick={handleShare} title="Share">
-          <Share2 size={24} />
-        </button>
-
-        <button className="btn" onClick={() => window.print()} title="Download/Print">
-          <Download size={24} />
+          <Share2 size={isMobile ? 20 : 24} />
         </button>
 
         <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
 
         <button className="btn" onClick={() => bookRef.current.pageFlip().flipNext()}>
-          <ChevronRight size={24} />
+          <ChevronRight size={isMobile ? 20 : 24} />
         </button>
       </div>
     </div>
