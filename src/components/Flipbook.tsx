@@ -2,7 +2,7 @@ import React, { useRef, useState, useCallback, useEffect } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import { useSound } from '../hooks/useSound';
 import { useHighlights } from '../hooks/useHighlights';
-import { Share2, Highlighter, Eraser, Download, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
+import { Share2, Highlighter, Eraser, Download, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize, Volume2, VolumeX } from 'lucide-react';
 import { CoverPage } from './CoverPage';
 
 const SLIDES = [
@@ -13,8 +13,9 @@ export const Flipbook = () => {
   const bookRef = useRef<any>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [zoom, setZoom] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
-  const { playFlipSound } = useSound();
+  const { playFlipSound, initAudio } = useSound();
   const { isHighlighting, toggleHighlighting } = useHighlights();
   const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([]);
 
@@ -26,8 +27,12 @@ export const Flipbook = () => {
 
   const onFlip = useCallback((e: any) => {
     setCurrentPage(e.data);
-    playFlipSound();
-  }, [playFlipSound]);
+    if (!isMuted) playFlipSound();
+  }, [playFlipSound, isMuted]);
+
+  const handleInteraction = () => {
+    initAudio();
+  };
 
   const handleZoom = (delta: number) => {
     setZoom(prev => Math.min(Math.max(prev + delta, 1), 2.5));
@@ -83,7 +88,7 @@ export const Flipbook = () => {
   const bookHeight = bookWidth * 1.414;
 
   return (
-    <div className="app-container">
+    <div className="app-container" onClick={handleInteraction} onTouchStart={handleInteraction}>
       <div className="page-indicator" style={{ position: isMobile ? 'fixed' : 'absolute' }}>
         {currentPage === 0 ? 'BAS SIGNAL' : `PAGE ${currentPage} / ${SLIDES.length}`}
       </div>
@@ -111,8 +116,8 @@ export const Flipbook = () => {
           style={{}}
           startPage={0}
           drawShadow={true}
-          flippingTime={800} // Faster flip for mobile snappiness
-          usePortrait={isMobile} // Always use portrait on mobile
+          flippingTime={800}
+          usePortrait={isMobile}
           startZIndex={0}
           autoSize={true}
           clickEventForward={true}
@@ -158,16 +163,23 @@ export const Flipbook = () => {
           <button className="btn" onClick={() => handleZoom(0.1)} title="Zoom In">
             <ZoomIn size={isMobile ? 18 : 20} />
           </button>
+          <button 
+            className={`btn ${zoom > 1 ? 'active' : ''}`} 
+            onClick={() => setZoom(prev => (prev === 1 ? 1.8 : 1))} 
+            title="Toggle Immersive"
+          >
+            <Maximize size={isMobile ? 18 : 20} />
+          </button>
         </div>
 
         <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
 
         <button 
-          className={`btn ${zoom > 1 ? 'active' : ''}`} 
-          onClick={() => setZoom(prev => (prev === 1 ? 1.8 : 1))} 
-          title="Toggle Immersive"
+          className="btn" 
+          onClick={() => { initAudio(); setIsMuted(!isMuted); }} 
+          title={isMuted ? "Unmute Sound" : "Mute Sound"}
         >
-          <Maximize size={isMobile ? 18 : 20} />
+          {isMuted ? <VolumeX size={isMobile ? 20 : 24} /> : <Volume2 size={isMobile ? 20 : 24} />}
         </button>
 
         <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />

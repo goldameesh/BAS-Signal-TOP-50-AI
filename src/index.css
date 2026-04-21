@@ -271,11 +271,11 @@ body {
 }
 
 .hybrid-logo {
-  width: 140px; /* Smaller for better rhythm */
+  width: 140px;
   height: auto;
-  filter: drop-shadow(0 0 20px rgba(201, 168, 76, 0.4));
-  mix-blend-mode: multiply;
-  /* Removed background: white to reveal the underlying brain artwork */
+  filter: invert(1) brightness(1.4) contrast(1.1) sepia(0.3) hue-rotate(180deg);
+  mix-blend-mode: color-dodge; /* Blends the inverted logo perfectly into the blue */
+  opacity: 0.9;
 }
 
 .hybrid-title-box {
