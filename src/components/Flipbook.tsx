@@ -2,7 +2,7 @@ import React, { useRef, useState, useCallback, useEffect } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import { useSound } from '../hooks/useSound';
 import { useHighlights } from '../hooks/useHighlights';
-import { Share2, Highlighter, Eraser, Download, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { Share2, Highlighter, Eraser, Download, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 import { CoverPage } from './CoverPage';
 
 const SLIDES = [
@@ -28,10 +28,6 @@ export const Flipbook = () => {
     setCurrentPage(e.data);
     playFlipSound();
   }, [playFlipSound]);
-
-  const toggleZoom = () => {
-    setZoom(prev => (prev === 1 ? 1.5 : 1));
-  };
 
   const handleZoom = (delta: number) => {
     setZoom(prev => Math.min(Math.max(prev + delta, 1), 2.5));
@@ -163,6 +159,16 @@ export const Flipbook = () => {
             <ZoomIn size={isMobile ? 18 : 20} />
           </button>
         </div>
+
+        <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
+
+        <button 
+          className={`btn ${zoom > 1 ? 'active' : ''}`} 
+          onClick={() => setZoom(prev => (prev === 1 ? 1.8 : 1))} 
+          title="Toggle Immersive"
+        >
+          <Maximize size={isMobile ? 18 : 20} />
+        </button>
 
         <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
 
